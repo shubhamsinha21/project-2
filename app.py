@@ -2,78 +2,62 @@ import streamlit as st
 import pandas as pd
 import joblib
 import numpy as np
-import matplotlib.pyplot as plt
 
 # -----------------------------
 # Page Config
 # -----------------------------
 st.set_page_config(
-    page_title="Heart Disease Risk Predictor",
+    page_title="Heart Risk AI Dashboard",
     page_icon="❤️",
     layout="wide"
 )
 
 # -----------------------------
-# Load Model Files
+# Load Model
 # -----------------------------
-try:
-    model = joblib.load("heart.pkl")
-    scaler = joblib.load("scaler.pkl")
-    columns = joblib.load("columns.pkl")
-except Exception as e:
-    st.error(f"Error loading model files: {e}")
-    st.stop()
+model = joblib.load("heart.pkl")
+scaler = joblib.load("scaler.pkl")
+columns = joblib.load("columns.pkl")
 
 # -----------------------------
-# Title
+# Header UI
 # -----------------------------
-st.title("❤️ Heart Disease Risk Predictor")
-st.markdown("AI-powered clinical decision support system (educational use only)")
+st.markdown("""
+    <div style="text-align:center">
+        <h1>❤️ Heart Risk AI Dashboard</h1>
+        <p style="color:gray;">Explainable AI-powered clinical decision support system</p>
+    </div>
+""", unsafe_allow_html=True)
 
 st.divider()
 
 # -----------------------------
-# Input Section
+# INPUT UI
 # -----------------------------
 col1, col2 = st.columns(2)
 
 with col1:
     age = st.slider("Age", 18, 100, 40)
-
-    Gender = st.selectbox("Gender", ["male", "female"])
-
-    chest_pain = st.selectbox(
-        "Chest Pain Type",
-        ["typical", "atypical", "non-anginal", "asymptomatic"]
-    )
-
-    resting_bp = st.number_input("Resting Blood Pressure", 80, 200, 120)
-
+    gender = st.selectbox("Gender", ["male", "female"])
+    chest_pain = st.selectbox("Chest Pain Type",
+        ["typical", "atypical", "non-anginal", "asymptomatic"])
+    resting_bp = st.number_input("Resting BP", 80, 200, 120)
     cholesterol = st.number_input("Cholesterol", 100, 600, 200)
 
 with col2:
-    fasting_bp = st.selectbox("Fasting Blood Sugar > 120 mg/dl", [0, 1])
-
-    resting_ecg = st.selectbox(
-        "Resting ECG",
-        ["Normal", "ST", "left ventricular hypertrophy"]
-    )
-
-    max_heart_rate = st.slider("Max Heart Rate", 60, 220, 150)
-
-    exercise_angina = st.selectbox("Exercise Induced Angina", [0, 1])
-
-    oldpeak = st.slider("Oldpeak (ST Depression)", 0.0, 6.0, 1.0)
-
-    st_slope = st.selectbox(
-        "ST Slope",
-        ["upsloping", "flat", "downsloping"]
-    )
+    fasting_bs = st.selectbox("Fasting Blood Sugar > 120", [0, 1])
+    resting_ecg = st.selectbox("Resting ECG",
+        ["Normal", "ST", "left ventricular hypertrophy"])
+    max_hr = st.slider("Max Heart Rate", 60, 220, 150)
+    exercise_angina = st.selectbox("Exercise Angina", [0, 1])
+    oldpeak = st.slider("Oldpeak", 0.0, 6.0, 1.0)
+    st_slope = st.selectbox("ST Slope",
+        ["upsloping", "flat", "downsloping"])
 
 st.divider()
 
 # -----------------------------
-# Prediction
+# PREDICTION
 # -----------------------------
 if st.button("🔍 Predict Risk", use_container_width=True):
 
@@ -81,102 +65,92 @@ if st.button("🔍 Predict Risk", use_container_width=True):
         "Age": age,
         "RestingBP": resting_bp,
         "Cholesterol": cholesterol,
-        "MaxHR": max_heart_rate,
+        "MaxHR": max_hr,
         "Oldpeak": oldpeak,
-        "FastingBS": fasting_bp,
-        "Gender_" + Gender: 1,
+        "FastingBS": fasting_bs,
+        "Gender_" + gender: 1,
         "ChestPainType_" + chest_pain: 1,
         "RestingECG_" + resting_ecg: 1,
         "ExerciseAngina_" + str(exercise_angina): 1,
         "ST_Slope_" + st_slope: 1
     }
 
-    input_df = pd.DataFrame([input_data])
+    df = pd.DataFrame([input_data])
 
-    # align columns
-    for col in columns:
-        if col not in input_df.columns:
-            input_df[col] = 0
+    for c in columns:
+        if c not in df.columns:
+            df[c] = 0
 
-    input_df = input_df[columns]
+    df = df[columns]
 
-    scaled_input = scaler.transform(input_df)
+    scaled = scaler.transform(df)
 
-    prediction = model.predict(scaled_input)[0]
-    probability = model.predict_proba(scaled_input)[0]
+    pred = model.predict(scaled)[0]
+    prob = model.predict_proba(scaled)[0]
 
-    low_risk_prob = probability[0] * 100
-    high_risk_prob = probability[1] * 100
-
-    st.divider()
-
-    # -----------------------------
-    # Result Section
-    # -----------------------------
-    st.subheader("📊 Prediction Result")
-
-    if prediction == 1:
-        st.error("⚠️ High Risk of Heart Disease")
-        st.metric("Risk Score", f"{high_risk_prob:.2f}%")
-        st.progress(int(high_risk_prob))
-
-    else:
-        st.success("✅ Low Risk of Heart Disease")
-        st.metric("Safety Score", f"{low_risk_prob:.2f}%")
-        st.progress(int(low_risk_prob))
+    low = prob[0] * 100
+    high = prob[1] * 100
 
     st.divider()
 
     # -----------------------------
-    # FEATURE IMPORTANCE SECTION (NEW)
+    # RESULT SECTION
     # -----------------------------
-    st.subheader("📌 What influenced this prediction?")
+    st.subheader("📊 Risk Analysis")
 
-    feature_names = columns
+    left, right = st.columns(2)
 
-    # extract importance
-    if hasattr(model, "coef_"):
-        importance = model.coef_[0]
-    elif hasattr(model, "feature_importances_"):
-        importance = model.feature_importances_
-    else:
-        importance = np.zeros(len(feature_names))
+    with left:
+        st.metric("Low Risk", f"{low:.2f}%")
+        st.metric("High Risk", f"{high:.2f}%")
 
-    importance_df = pd.DataFrame({
-        "Feature": feature_names,
-        "Importance": importance
+    with right:
+        st.progress(int(high))
+        st.write("Risk Probability Visualization")
+
+    st.divider()
+
+    # -----------------------------
+    # CHART 1 - RISK CHART
+    # -----------------------------
+    st.subheader("📈 Risk Probability Chart")
+
+    chart_data = pd.DataFrame({
+        "Category": ["Low Risk", "High Risk"],
+        "Probability": [low, high]
     })
 
-    importance_df["AbsImportance"] = importance_df["Importance"].abs()
-    importance_df = importance_df.sort_values("AbsImportance", ascending=False).head(10)
-
-    # Plot
-    fig, ax = plt.subplots()
-    ax.barh(importance_df["Feature"][::-1], importance_df["AbsImportance"][::-1])
-    ax.set_xlabel("Importance Score")
-    ax.set_title("Top 10 Influencing Features")
-
-    st.pyplot(fig)
-
-    st.markdown("### Top contributing factors")
-    st.dataframe(importance_df[["Feature", "Importance"]])
+    st.bar_chart(chart_data.set_index("Category"))
 
     st.divider()
 
     # -----------------------------
-    # Probability Summary
+    # CHART 2 - FEATURE IMPORTANCE VISUAL STYLE
     # -----------------------------
-    c1, c2 = st.columns(2)
+    st.subheader("🧠 Key Health Indicators (Model Insight)")
 
-    with c1:
-        st.metric("Low Risk Probability", f"{low_risk_prob:.2f}%")
+    if hasattr(model, "coef_"):
+        importance = np.abs(model.coef_[0])
+    else:
+        importance = np.zeros(len(columns))
 
-    with c2:
-        st.metric("High Risk Probability", f"{high_risk_prob:.2f}%")
+    feat_df = pd.DataFrame({
+        "Feature": columns,
+        "Impact": importance
+    }).sort_values("Impact", ascending=False).head(8)
+
+    st.bar_chart(feat_df.set_index("Feature"))
+
+    st.divider()
+
+    # -----------------------------
+    # FINAL SUMMARY
+    # -----------------------------
+    st.success(
+        "Prediction completed using ML model + probability scoring + explainable indicators."
+    )
 
 # -----------------------------
-# Footer
+# FOOTER
 # -----------------------------
-st.caption(
-    "Educational project only. Not a medical diagnosis tool."
-)
+st.caption("Made with ❤️ by Shubham Sinha")
