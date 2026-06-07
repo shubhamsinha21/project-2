@@ -1,26 +1,16 @@
 # 🫀 Heart Risk AI Dashboard
 
-### An end-to-end Machine Learning web application that predicts the risk of heart disease using clinical health parameters. Built with Streamlit + Scikit-learn, this project provides real-time prediction, interactive dashboards, and downloadable medical reports.
+An end-to-end Machine Learning web application that predicts the risk of heart disease using clinical health parameters. Built with Streamlit + Scikit-learn, this project provides real-time prediction, interactive dashboards, and downloadable medical reports.
 
 # 🚀 Live Demo
 
 ## 📸 UI Preview
 
-(Add screenshot here)
-
-assets/ui_dashboard.png
+<img width="1510" height="865" alt="ui" src="https://github.com/user-attachments/assets/15d01adb-635a-4d86-8e0c-ff2467231569" />
 
 ## 📊 Risk Analysis Charts
 
-(Add screenshot here)
-
-assets/ui_charts.png
-
-## 📄 PDF Report Output
-
-(Add screenshot here)
-
-assets/ui_pdf.png
+<img width="1510" height="685" alt="charts" src="https://github.com/user-attachments/assets/243625e0-e7c1-4716-a2af-402624963742" />
 
 # 🎯 Project Objective
 
