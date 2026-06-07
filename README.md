@@ -1,25 +1,22 @@
 # 🫀 Heart Risk AI Dashboard
 
-An end-to-end Machine Learning web application that predicts the risk of heart disease using clinical health parameters.
-Built with Streamlit + Scikit-learn, this project provides real-time prediction, interactive dashboards, and downloadable medical reports.
+### An end-to-end Machine Learning web application that predicts the risk of heart disease using clinical health parameters. Built with Streamlit + Scikit-learn, this project provides real-time prediction, interactive dashboards, and downloadable medical reports.
 
 # 🚀 Live Demo
 
-👉 (Add your deployed Streamlit link here)
-
-https://your-streamlit-app-link
-### 📸 UI Preview
-🏠 Dashboard View
+## 📸 UI Preview
 
 (Add screenshot here)
 
 assets/ui_dashboard.png
-### 📊 Risk Analysis Charts
+
+## 📊 Risk Analysis Charts
 
 (Add screenshot here)
 
 assets/ui_charts.png
-### 📄 PDF Report Output
+
+## 📄 PDF Report Output
 
 (Add screenshot here)
 
@@ -43,31 +40,32 @@ To build a clinical decision-support system that:
 - Real-time inference pipeline
 
 ### 📊 Interactive Dashboard
-Risk probability visualization
-Feature impact analysis chart
-Medical-style UI using Streamlit
+- Risk probability visualization
+- Feature impact analysis chart
+- Medical-style UI using Streamlit
 
 ### 📄 PDF Medical Report
-Auto-generated patient report
-Includes:
-Patient details
-Risk prediction
-Probability scores
-Timestamp
+- Auto-generated patient report
+
+- Includes:
+1. Patient details
+2. Risk prediction
+3. Probability scores
+4. Timestamp
 
 ### 🧾 Explainability
-Feature importance visualization
-Transparent model outputs
+- Feature importance visualization
+- Transparent model outputs
 
 # 🛠️ Tech Stack
 
-Python 🐍
-Streamlit ⚡
-Scikit-learn 🤖
-Pandas 📊
-NumPy 🔢
-ReportLab 📄
-Joblib 💾
+- Python 🐍
+- Streamlit ⚡
+- Scikit-learn 🤖
+- Pandas 📊
+- NumPy 🔢
+- ReportLab 📄
+- Joblib 💾
 
 # 🏗️ Project Architecture
 
@@ -126,47 +124,39 @@ streamlit run app.py
 
 # 📦 Requirements
 
-streamlit
-pandas
-numpy
-scikit-learn
-joblib
-reportlab
+- streamlit
+- pandas
+- numpy
+- scikit-learn
+- joblib
+- reportlab
 
 # 📊 Model Input Features
 
-Age
-Gender
-Chest Pain Type
-Resting Blood Pressure
-Cholesterol
-Fasting Blood Sugar
-ECG Results
-Max Heart Rate
-Exercise Induced Angina
-ST Depression (Oldpeak)
-ST Slope
+1. Age
+2. Gender
+3. Chest Pain Type
+4. Resting Blood Pressure
+5. Cholesterol
+6. Fasting Blood Sugar
+7. ECG Results
+8. Max Heart Rate
+9. Exercise Induced Angina
+10. ST Depression (Oldpeak)
+11. ST Slope
 
 # 📈 Output
 
-🟢 Low Risk %
-🔴 High Risk %
-📊 Risk Probability Chart
-🧠 Feature Importance
-📄 Downloadable PDF Report
-
-# 💡 Future Improvements
-
-SHAP explainability integration
-Cloud deployment (AWS / Render)
-Database integration for patient history
-Authentication system
-Mobile responsive UI
+- 🟢 Low Risk %
+- 🔴 High Risk %
+- 📊 Risk Probability Chart
+- 🧠 Feature Importance
+- 📄 Downloadable PDF Report
 
 # 👨‍💻 Author
 
 Made with ❤️ by Shubham Sinha | AI Engineer 
 
-⭐ If you like this project
+### ⭐ If you like this project
 
-Give it a ⭐ on GitHub — it helps a lot!
+- Give it a ⭐ on GitHub — it helps a lot!
