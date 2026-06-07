@@ -7,60 +7,60 @@ from io import BytesIO
 from reportlab.pdfgen import canvas
 
 # -----------------------------
-# Page Config
+# CONFIG
 # -----------------------------
 st.set_page_config(
     page_title="Heart Risk AI Dashboard",
-    page_icon="❤️",
+    page_icon="🫀",
     layout="wide"
 )
 
 # -----------------------------
-# Load Model
+# LOAD MODEL
 # -----------------------------
 model = joblib.load("heart.pkl")
 scaler = joblib.load("scaler.pkl")
 columns = joblib.load("columns.pkl")
 
 # -----------------------------
-# Header UI
+# HEADER (HOSPITAL STYLE)
 # -----------------------------
 st.markdown("""
-    <div style="text-align:center">
-        <h1>❤️ Heart Risk AI Dashboard</h1>
-        <p style="color:gray;">Explainable AI-powered clinical decision support system</p>
-    </div>
+<div style="background-color:#0f172a;padding:20px;border-radius:12px;text-align:center">
+    <h1 style="color:white;">🫀 Heart Risk AI Dashboard </h1>
+    <p style="color:#cbd5e1;">AI-powered heart disease risk analysis dashboard</p>
+</div>
 """, unsafe_allow_html=True)
 
 st.divider()
 
 # -----------------------------
-# INPUT UI
+# INPUT SECTION
 # -----------------------------
 col1, col2 = st.columns(2)
 
 with col1:
-    age = st.slider("Age", 18, 100, 40)
+    age = st.slider("Patient Age", 18, 100, 45)
     gender = st.selectbox("Gender", ["male", "female"])
     chest_pain = st.selectbox("Chest Pain Type",
         ["typical", "atypical", "non-anginal", "asymptomatic"])
-    resting_bp = st.number_input("Resting BP", 80, 200, 120)
-    cholesterol = st.number_input("Cholesterol", 100, 600, 200)
+    resting_bp = st.number_input("Resting Blood Pressure", 80, 200, 120)
+    cholesterol = st.number_input("Cholesterol Level", 100, 600, 200)
 
 with col2:
     fasting_bs = st.selectbox("Fasting Blood Sugar > 120", [0, 1])
     resting_ecg = st.selectbox("Resting ECG",
         ["Normal", "ST", "left ventricular hypertrophy"])
-    max_hr = st.slider("Max Heart Rate", 60, 220, 150)
-    exercise_angina = st.selectbox("Exercise Angina", [0, 1])
-    oldpeak = st.slider("Oldpeak", 0.0, 6.0, 1.0)
+    max_hr = st.slider("Max Heart Rate Achieved", 60, 220, 150)
+    exercise_angina = st.selectbox("Exercise Induced Angina", [0, 1])
+    oldpeak = st.slider("ST Depression (Oldpeak)", 0.0, 6.0, 1.0)
     st_slope = st.selectbox("ST Slope",
         ["upsloping", "flat", "downsloping"])
 
 st.divider()
 
 # -----------------------------
-# PDF FUNCTION (NEW)
+# PDF FUNCTION
 # -----------------------------
 def generate_pdf(data_dict):
     buffer = BytesIO()
@@ -70,10 +70,10 @@ def generate_pdf(data_dict):
     p.drawString(50, 800, "Heart Disease Risk Report")
 
     p.setFont("Helvetica", 11)
-
     y = 760
-    for key, value in data_dict.items():
-        p.drawString(50, y, f"{key}: {value}")
+
+    for k, v in data_dict.items():
+        p.drawString(50, y, f"{k}: {v}")
         y -= 20
 
     p.save()
@@ -83,7 +83,7 @@ def generate_pdf(data_dict):
 # -----------------------------
 # PREDICTION
 # -----------------------------
-if st.button("🔍 Predict Risk", use_container_width=True):
+if st.button("🔍 Analyze Risk", use_container_width=True):
 
     input_data = {
         "Age": age,
@@ -112,46 +112,73 @@ if st.button("🔍 Predict Risk", use_container_width=True):
     pred = model.predict(scaled)[0]
     prob = model.predict_proba(scaled)[0]
 
-    low = prob[0] * 100
-    high = prob[1] * 100
+    risk = prob[1] * 100
+
+    # -----------------------------
+    # RISK CLASSIFICATION
+    # -----------------------------
+    if risk < 30:
+        status = "LOW RISK"
+        color = "🟢"
+        box_color = "#16a34a"
+    elif risk < 70:
+        status = "MODERATE RISK"
+        color = "🟡"
+        box_color = "#facc15"
+    else:
+        status = "HIGH RISK"
+        color = "🔴"
+        box_color = "#ef4444"
 
     st.divider()
 
     # -----------------------------
-    # RESULT SECTION
+    # PATIENT DASHBOARD (HOSPITAL CARD STYLE)
     # -----------------------------
-    st.subheader("📊 Risk Analysis")
+    col1, col2 = st.columns([1, 2])
 
-    left, right = st.columns(2)
+    with col1:
+        st.markdown(f"""
+        <div style="padding:20px;border-radius:15px;background-color:#111827;color:white">
+            <h3>🧑 Patient Card</h3>
+            <p><b>Age:</b> {age}</p>
+            <p><b>Gender:</b> {gender}</p>
+            <p><b>Chest Pain:</b> {chest_pain}</p>
+            <p><b>BP:</b> {resting_bp}</p>
+            <p><b>Cholesterol:</b> {cholesterol}</p>
+            <p><b>Max HR:</b> {max_hr}</p>
+        </div>
+        """, unsafe_allow_html=True)
 
-    with left:
-        st.metric("Low Risk", f"{low:.2f}%")
-        st.metric("High Risk", f"{high:.2f}%")
+    with col2:
+        st.markdown(f"""
+        <div style="padding:25px;border-radius:15px;background-color:{box_color};color:white;text-align:center">
+            <h2>🫀 {status}</h2>
+            <h1 style="font-size:50px">{risk:.2f}%</h1>
+            <p>Heart Disease Probability</p>
+        </div>
+        """, unsafe_allow_html=True)
 
-    with right:
-        st.progress(int(high))
-        st.write("Risk Probability Visualization")
+        st.progress(int(risk))
+        st.caption("Risk Meter (0 → Safe, 100 → Critical)")
 
     st.divider()
 
     # -----------------------------
-    # CHART 1
+    # RISK CHART
     # -----------------------------
-    st.subheader("📈 Risk Probability Chart")
+    st.subheader("📊 Risk Visualization")
 
-    chart_data = pd.DataFrame({
-        "Category": ["Low Risk", "High Risk"],
-        "Probability": [low, high]
-    })
-
-    st.bar_chart(chart_data.set_index("Category"))
+    st.bar_chart(pd.DataFrame({
+        "Risk": [risk]
+    }))
 
     st.divider()
 
     # -----------------------------
-    # CHART 2
+    # FEATURE IMPORTANCE
     # -----------------------------
-    st.subheader("🧠 Key Health Indicators")
+    st.subheader("🧠 Clinical Indicators Impact")
 
     if hasattr(model, "coef_"):
         importance = np.abs(model.coef_[0])
@@ -168,34 +195,28 @@ if st.button("🔍 Predict Risk", use_container_width=True):
     st.divider()
 
     # -----------------------------
-    # FINAL SUMMARY
+    # PDF REPORT
     # -----------------------------
-    st.success("Prediction completed using ML + probability + explainability")
-
-    # -----------------------------
-    # NEW: PDF DOWNLOAD SECTION
-    # -----------------------------
-    st.subheader("📄 Download Report")
+    st.subheader("📄 Medical Report")
 
     report_data = {
         "Age": age,
         "Gender": gender,
         "Chest Pain": chest_pain,
-        "Resting BP": resting_bp,
+        "BP": resting_bp,
         "Cholesterol": cholesterol,
-        "Max Heart Rate": max_hr,
+        "Max HR": max_hr,
         "Oldpeak": oldpeak,
-        "Prediction": "High Risk" if pred == 1 else "Low Risk",
-        "High Risk %": f"{high:.2f}",
-        "Low Risk %": f"{low:.2f}",
+        "Risk Status": status,
+        "Risk Score": f"{risk:.2f}%",
         "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
 
-    pdf_file = generate_pdf(report_data)
+    pdf = generate_pdf(report_data)
 
     st.download_button(
-        label="📥 Download Medical Report (PDF)",
-        data=pdf_file,
+        "📥 Download Report",
+        pdf,
         file_name="heart_risk_report.pdf",
         mime="application/pdf"
     )
@@ -203,4 +224,4 @@ if st.button("🔍 Predict Risk", use_container_width=True):
 # -----------------------------
 # FOOTER
 # -----------------------------
-st.caption("Made with ❤️ by Shubham Sinha | AI Engineer")
+st.caption("🫀 Heart Risk AI v2 | Made with ❤️ by Shubham Sinha")
